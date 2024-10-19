@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitter Sentiment Analysis</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        textarea {
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        input[type="submit"] {
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #218838;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Twitter Sentiment Analysis</h1>
+    
+    <!-- Form for submitting the tweet -->
+    <form id="tweetForm">
+        <label for="tweet">Enter Tweet:</label>
+        <textarea id="tweet" name="tweet" rows="4" placeholder="Type your tweet here..." required></textarea>
+        <input type="submit" value="Analyze">
+    </form>
+
+    <!-- Div to show the result -->
+    <div class="result" id="result"></div>
+</div>
+
+<script>
+    document.getElementById('tweetForm').addEventListener('submit', async function(event) {
+        event.preventDefault();  // Prevent the form from submitting the traditional way
+        
+        // Get the tweet text from the form
+        let tweet = document.getElementById('tweet').value;
+
+        // Send a POST request to the backend
+        const response = await fetch('/predict', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `tweet=${encodeURIComponent(tweet)}`
+        });
+
+        // Parse the response
+        const result = await response.json();
+
+        // Show the prediction result on the page
+        const resultDiv = document.getElementById('result');
+        if (result.error) {
+            resultDiv.textContent = 'Error: ' + result.error;
+            resultDiv.style.color = 'red';
+        } else {
+            // Check if the prediction is 1 (positive) or 0 (negative)
+            if (result.prediction === '1') {
+                resultDiv.textContent = 'Sentiment: Positive';
+                resultDiv.style.color = 'green';
+            } else if (result.prediction === '0') {
+                resultDiv.textContent = 'Sentiment: Negative';
+                resultDiv.style.color = 'red';
+            } else {
+                resultDiv.textContent = 'Sentiment: Neutral';
+                resultDiv.style.color = 'blue';
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
